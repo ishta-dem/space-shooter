@@ -244,6 +244,62 @@ class Dashboard:
         screen.blit(self.surf,(self.titlex,self.titley))
         screen.blit(title,((self.titlex + (self.titlewidth/2) - (title.get_width()/2)),(self.titley + (self.titleheight / 2) - (title.get_height() / 2))))
 
+        #set to choose player ships from the list of BIg medium and small ship
+        surf = pygame.surface.Surface((width - 100, height- 100))
+        surf.fill(BLACK)
+        pygame.Surface.set_alpha(surf,100)
+        screen.blit(surf,(width/2 - ((width - 100)/2),height/2 - ((height - 100)/2)))
+
+        #Note : choose space ship by clicking onit
+        note = font.render('Note : choose space-ship by clicking on it !',True,WHITE)
+        pygame.Surface.set_alpha(note,150)
+        screen.blit(note, (width / 2 - note.get_width() / 2,height - note.get_height() - 10)) 
+        shipsizelist = ['Big','Medium','Small']
+
+        x = 250
+        y = 80
+        shipheight = 0
+        for i in range(3):
+            selectedsize = 'assets/player/Ships/'+str(shipsizelist[i])
+            sizetitle = font.render(shipsizelist[i],True,WHITE)
+            screen.blit(sizetitle,(100,y))
+            for j in range(1,4):
+                #get mouse pointer position
+                pos = pygame.mouse.get_pos()
+                #get image path
+                #load image and get rect for x and y setup
+                #scale image
+                selectimg = selectedsize+'/'+str(j)+'.png'
+                img = pygame.image.load(selectimg).convert_alpha()
+                scaleimg = pygame.transform.scale(img,(int(img.get_width() * 0.5),int(img.get_height() * 0.5)))
+                imgrect = scaleimg.get_rect()
+                imgrect.topleft = (x,y)
+
+                #draw border on selected image
+                if selectimg == self.selectedship:
+                    borderbox = pygame.surface.Surface((scaleimg.get_width()+10, scaleimg.get_height()+10))
+                    borderbox.fill(LIGHTGREEN)
+                    screen.blit(borderbox,(imgrect.x - 5,imgrect.y - 5))
+
+                #check collide with mouse and select ship
+                if imgrect.collidepoint(pos):
+                    hoverbox = pygame.surface.Surface((scaleimg.get_width()+10, scaleimg.get_height()+10))
+                    hoverbox.fill(YELLOW)
+                    screen.blit(hoverbox,(imgrect.x - 5,imgrect.y - 5))
+                    #display image on big size
+                    bigimg = pygame.transform.scale(img,(int(img.get_width() * 1.3),int(img.get_height() * 1.3)))
+                    screen.blit(bigimg,((width/2 - ((width - 100)/2)) + (width - 100) - bigimg.get_width() - 20, ((height/2 - ((height - 100)/2)) + ((height-100)/2) - bigimg.get_height() / 2)))
+                    #onclick ship selected
+                    if pygame.mouse.get_pressed()[0] == 1:
+                        self.selectedship = selectimg
+
+
+                screen.blit(scaleimg,imgrect)
+                x += scaleimg.get_width() + 30
+                shipheight = scaleimg.get_height()
+            y += shipheight + 30
+            x = 250
+
         
 
 
