@@ -300,7 +300,26 @@ class Dashboard:
             y += shipheight + 30
             x = 250
 
-        
+
+#planet enimation
+class Planet(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Planet, self).__init__()
+        self.flames = []
+        for i in range(1,61):
+            self.flames.append(pygame.transform.scale(pygame.image.load('assets/gamebg/Moon/'+str(i)+'.png'),(90,90)))
+        self.index = 0
+        self.image = self.flames[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (width-300,80)
+
+    def update(self):
+        self.index += 1
+        if self.index >= len(self.flames):
+            self.index = 0
+        time.sleep(0.04)
+        self.image = self.flames[self.index]
+    
 
 
 #create dashboard object
