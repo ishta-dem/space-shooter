@@ -366,8 +366,6 @@ class Dashboard:
                     #onclick ship selected
                     if pygame.mouse.get_pressed()[0] == 1:
                         self.selectedship = selectimg
-                        player = Player(400,300,db.selectedship)
-
 
                 screen.blit(scaleimg,imgrect)
                 x += scaleimg.get_width() + 30
