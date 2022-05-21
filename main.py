@@ -72,6 +72,27 @@ def author():
     textheight = text.get_height()
     screen.blit(text,((width) - (textwidth + 20),(height - (textheight * 2))))
 
+#game background
+
+class Background:
+    def __init__(self,x,y,img):
+        self.x = x
+        self.y = y
+        self.bg = img
+        self.rect = self.bg.get_rect()
+        self.rect.topleft = (self.x,self.y)
+
+    def draw_bg(self):
+        screen.blit(self.bg, self.rect)
+        screen.blit(self.bg, (self.rect.x ,self.rect.y - self.bg.get_height()))
+        screen.blit(self.bg, (self.rect.x ,self.rect.y - (self.bg.get_height() * 2)))
+
+        if self.rect.y > self.bg.get_height():
+            self.rect.y = 0
+        self.rect.move_ip(0,1)
+        
+bg = Background(0,0,star_texture)
+
 #--------------dashboard------------------
 #this used to render image title and box
 #all operations are perform in loops event
@@ -91,8 +112,61 @@ class Dashboard:
         self.helpmsgy = 0
         self.helpmsgscrolly = 0
    
+    #this function display level and selected spaceship on dashboard
+    def PlayerShipAndLevel(self):
+        font = pygame.font.SysFont('arial',18,2)
+        title = font.render('  PLAYER SHIP  ',True,WHITE,DARKBLUE)
+        rect = title.get_rect()
+        rect.topleft = (320,50)
+
+        ship = pygame.transform.scale(pygame.image.load(self.selectedship).convert_alpha(),(60,120))
+        shiprect = ship.get_rect()
+        shiprect.topleft = ((rect.x + (title.get_width() / 2) - (ship.get_width() / 2),rect.y + title.get_height() + 15))
+
+        #showing flame of ship
+        flame = pygame.image.load('assets/player/flame/0 (1).png').convert_alpha()
+        screen.blit(flame,(shiprect.x + ship.get_width()/2 - flame.get_width()/2,shiprect.y+ship.get_height()-10))
+
+        #show title
+        screen.blit(title,rect)
+        #show ship
+        screen.blit(ship,shiprect)
+
+        #display level ===>  Level : LOW
+        level = font.render('  LEVEL : '+ self.selectedlevel+'  ', True, WHITE,DARKBLUE)
+        screen.blit(level,(rect.x + title.get_width() + 15,rect.y))
+
         # return Planet
-    
+    #score slider for dashboard
+    def ScoreSlider(self):
+        btText = '<'
+        if self.slider:
+            btText = '>'
+        else:
+            btText = '<'
+
+        box = pygame.surface.Surface((width/2-80,height/2 + 30))
+        box.fill(BLACK)
+        pygame.Surface.set_alpha(box,150)
+        boxrect = box.get_rect()
+        boxrect.topleft = (self.sliderboxx,self.sliderboxy)
+        screen.blit(box,boxrect)
+
+        leftarrow = Button(self.sliderboxx-25,self.sliderboxy + (box.get_height()/2) - 17,25,35,btText,20,DARKBLUE,RED,hover=False)
+        
+        if self.slider == False:
+            if leftarrow.draw(screen):
+                self.sliderboxx = self.sliderboxx - (width/2-100)
+                self.slider = True
+        else:
+            if leftarrow.draw(screen):
+                self.sliderboxx = self.sliderboxx + (width/2-100)
+                self.slider = False
+
+        font = pygame.font.SysFont('arial',18,2)
+        title = font.render('  Score Board  ',True,WHITE)
+        screen.blit(title,(self.sliderboxx + (box.get_width()/2) - (title.get_width()/2),self.sliderboxy))
+
     def StartGame(self):
         font = pygame.font.SysFont('arial',12,2)
         title = font.render('LEVEL : '+str(self.selectedlevel),True,WHITE)
@@ -292,6 +366,7 @@ class Dashboard:
                     #onclick ship selected
                     if pygame.mouse.get_pressed()[0] == 1:
                         self.selectedship = selectimg
+                        player = Player(400,300,db.selectedship)
 
 
                 screen.blit(scaleimg,imgrect)
@@ -299,7 +374,6 @@ class Dashboard:
                 shipheight = scaleimg.get_height()
             y += shipheight + 30
             x = 250
-
 
 #planet enimation
 class Planet(pygame.sprite.Sprite):
@@ -319,11 +393,89 @@ class Planet(pygame.sprite.Sprite):
             self.index = 0
         time.sleep(0.04)
         self.image = self.flames[self.index]
-    
 
+
+#-------when game will started----------
+#player setups here
+move_left = False
+move_right = False
+move_up = False
+move_down = False
+shoot = False
+class Player(pygame.sprite.Sprite):
+    def __init__(self,x,y,img):
+        super(Player,self).__init__()
+        self.cool_down = 0
+        self.img = img
+        # self.last_time = pygame.time.get_ticks()
+        self.reset(x,y)
+
+        # print(self.player)
+    def reset(self,x,y):
+        self.x = x 
+        self.y = y
+        self.ship = pygame.image.load(self.img).convert_alpha()
+        self.player = pygame.transform.scale(self.ship,(60,120))
+        self.rect = self.player.get_rect()
+        self.rect.topleft = (self.x,self.y)
+
+    def shoot(self):
+        if self.cool_down == 0:
+            self.cool_down = 40
+            bullet = Bullet(self.rect.centerx,self.rect.centery)
+            bullet_group.add(bullet)
+
+    def update(self):
+        if self.cool_down > 0:
+            self.cool_down -= 1
+
+        #player move
+        if move_up:
+            self.rect.move_ip(0,-1)
+        if move_down:
+            self.rect.move_ip(0,1)
+        if move_left:
+            self.rect.move_ip(-1,0)
+        if move_right:
+            self.rect.move_ip(1,0)
+
+        #collide on window edge
+        if self.rect.y < 10:
+            self.rect.y = 10
+        if (self.rect.y+self.player.get_height()) > height - 10:
+            self.rect.y = height - 10 -self.player.get_height()
+        if self.rect.x < 10:
+            self.rect.x = 10
+        if (self.rect.x+self.player.get_width()) > width - 10:
+            self.rect.x = width - 10 - self.player.get_width()
+        
+        screen.blit(self.player,self.rect)
+
+#bullet class
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super(Bullet,self).__init__()
+        self.x = x
+        self.y = y
+        self.image = bullet_img
+        self.rect = self.image.get_rect()
+        self.rect.center = (x,y)
+    def update(self):
+        self.rect.y -= 2
+
+        if self.rect.y < 0:
+            self.kill
+        
 
 #create dashboard object
 db = Dashboard()
+#planet
+planet = Planet()
+planet_group = pygame.sprite.Group(planet)
+bullet_group = pygame.sprite.Group()
+
+#player
+player = Player(400,300,db.selectedship)
 
 #init.. True for loop
 run = True
@@ -338,12 +490,17 @@ while run:
         author()
         #show title and selectd ship for player ===> Player Ship
         db.PlayerShipAndLevel()
-        
+        #show Planet
+        planet_group.update()
+        planet_group.draw(screen)
         #score slider display
         db.ScoreSlider()
         #setup menu
         #start button
         start.msg(screen,'To Start Game Click Here',12)
+
+        #create player object on dashboard
+        player = Player(400,300,db.selectedship)
 
         if start.draw(screen):
             startgame = True
@@ -484,7 +641,16 @@ while run:
     #it means game is started
     else:
         screen.fill(WHITE)
+        bg.draw_bg()
+        db.StartGame()
+        #draw bullets
+        bullet_group.update()
+        bullet_group.draw(screen)
         
+        player.update()
+        if shoot:
+            player.shoot()
+
         if back.draw(screen):
             startgame = False
             setting_sec = False
@@ -493,7 +659,8 @@ while run:
             about_sec = False
             dashboard = True
             chooseship_sec = False
-            
+            player.reset(400,300)
+            bullet_group.empty()
 
     #keyboard event loop start here
     for event in pygame.event.get(): 
@@ -502,11 +669,27 @@ while run:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 run = False
-            
+            if event.key == K_UP:
+                move_up = True
+            if event.key == K_DOWN:
+                move_down = True
+            if event.key == K_LEFT:
+                move_left = True
+            if event.key == K_RIGHT:
+                move_right = True
+            if event.key == K_a:
+                shoot = True
         if event.type == KEYUP:
             if event.key == K_UP:
                 move_up = False
-            
+            if event.key == K_DOWN:
+                move_down = False
+            if event.key == K_LEFT:
+                move_left = False
+            if event.key == K_RIGHT:
+                move_right = False
+            if event.key == K_a:
+                shoot = False
             
     
     #update and flip our display
