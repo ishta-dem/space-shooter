@@ -113,6 +113,44 @@ class Dashboard:
         screen.blit(self.surf,(self.titlex,self.titley))
         screen.blit(title,((self.titlex + (self.titlewidth/2) - (title.get_width()/2)),(self.titley + (self.titleheight / 2) - (title.get_height() / 2))))
         
+        #draw one box 
+        boxx = ((width / 2) - ((width/2+50)/2))
+        boxy = ((height / 2) - ((height/2+50)/2))
+        boxwidth = width/2+50
+        boxheight = height/2+50
+        box = pygame.surface.Surface((boxwidth,boxheight))
+        box.fill(BLACK)
+        pygame.Surface.set_alpha(box,165)
+        screen.blit(box,(boxx,boxy))
+
+        #display level box title
+        #draw level button to select
+        levelboxtitle = font.render('Choose Level',True,WHITE)
+        screen.blit(levelboxtitle,((width/2)-(levelboxtitle.get_width()/2),boxy))
+
+        if self.selectedlevel == 'LOW':
+            levelbtborder = pygame.surface.Surface((70,30))
+            levelbtborder.fill(RED)
+            screen.blit(levelbtborder,(boxx + 5,boxy+(boxheight/2)-25))
+        elif self.selectedlevel == 'MEDIUM':
+            levelbtborder = pygame.surface.Surface((70,30))
+            levelbtborder.fill(RED)
+            screen.blit(levelbtborder,(boxx + boxwidth/2 - 35,boxy+(boxheight/2)-25))
+        elif self.selectedlevel == 'HIGH':
+            levelbtborder = pygame.surface.Surface((70,30))
+            levelbtborder.fill(RED)
+            screen.blit(levelbtborder,(boxx + boxwidth-75,boxy+(boxheight/2)-25))
+
+        lowbt = Button(boxx + 10,boxy+(boxheight/2)-20,60,20,'LOW',11,WHITE,YELLOW,DARKBLUE,False)
+        mediumbt = Button(boxx + boxwidth/2 - 30,boxy+(boxheight/2)-20,60,20,'MEDIUM',11,WHITE,YELLOW,DARKBLUE,False)
+        highbt = Button(boxx + boxwidth-70,boxy+(boxheight/2)-20,60,20,'HIGH',11,WHITE,YELLOW,DARKBLUE,False)
+        
+        if lowbt.draw(screen):
+            self.selectedlevel = 'LOW'
+        elif mediumbt.draw(screen):
+            self.selectedlevel = 'MEDIUM'
+        elif highbt.draw(screen):
+            self.selectedlevel = 'HIGH'
         
     def ScoreSec(self):
         self.surf.fill(DARKBLUE)
