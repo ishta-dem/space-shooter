@@ -179,6 +179,62 @@ class Dashboard:
         screen.blit(self.surf,(self.titlex,self.titley))
         screen.blit(title,((self.titlex + (self.titlewidth/2) - (title.get_width()/2)),(self.titley + (self.titleheight / 2) - (title.get_height() / 2))))
 
+        #show some content
+        surf = pygame.surface.Surface((width/2, height/2 + 60))
+        surf.fill(BLACK)
+        pygame.Surface.set_alpha(surf,200)
+        surfrect = surf.get_rect()
+        surfrect.topleft=(width/2 - surf.get_width()/2,height/2 - surf.get_height()/2)
+        screen.blit(surf,surfrect)
+        
+        helpmsg = [
+            'choose low level for the first game play',
+            'go to choose option to select space ship',
+            'use different space ship',
+            'go to setting option to select a level',
+            'click on start button to start game',
+            'you can see the score in the slider box',
+            'you can also see score in score',
+            'to know about developer go to about option',
+            'click on exit to exit from the game'
+        ]
+        msgfont = pygame.font.SysFont('arial',14,2)
+
+        btup = Button(surfrect.x + surf.get_width() - 20,surfrect.y,20,20,'/\\',15,LIGHTGREEN,RED,WHITE,False)
+        btdown = Button(surfrect.x + surf.get_width() - 20,surfrect.y + surf.get_height() - 20,20,20,'\\/',15,LIGHTGREEN,RED,WHITE,False)
+
+        my = self.helpmsgy + surfrect.y
+        msgTotalHeight = 0
+        scrollerheight = surf.get_height() - 40
+        for i in range(len(helpmsg)):
+            msg = msgfont.render(str(i+1)+' ) '+helpmsg[i],True,WHITE)
+            if my < surfrect.y or my > (surfrect.y + surf.get_height() - msg.get_height()):
+                pass
+            else:
+                screen.blit(msg,(surfrect.x + 25,my))
+            my += msg.get_height() + 25
+            msgTotalHeight += msg.get_height() + 25
+
+        scroll = pygame.surface.Surface((5, 20))
+        scrollrect = scroll.get_rect()
+        scrollrect.topleft = (surfrect.x + surf.get_width() - scroll.get_width()/2 - 10,self.helpmsgscrolly+surfrect.y + 20)
+        scroll.fill(WHITE)
+        screen.blit(scroll,scrollrect)
+
+        if btup.draw(screen):
+            if scrollrect.y < (surfrect.y + 20):
+                pass
+            else:
+                self.helpmsgy += 2
+                self.helpmsgscrolly -= (scrollerheight * 2) / msgTotalHeight
+        if btdown.draw(screen):
+            if scrollrect.y > (surfrect.y + surf.get_height() - scroll.get_height() - 20):
+                pass
+            else:
+                self.helpmsgy -= 2
+                self.helpmsgscrolly += (scrollerheight * 2) / msgTotalHeight
+        # print(self.helpmsgy) 
+
     def ChooseShipSec(self):
         self.surf.fill(DARKBLUE)
         font = pygame.font.SysFont('arial',20,2)
