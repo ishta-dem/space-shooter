@@ -1,6 +1,7 @@
 #Game : Space Shooter
 #Author : Ravi Panchal
 
+import random
 import plyer
 import pygame
 from pygame.locals import *
@@ -477,6 +478,38 @@ class Bullet(pygame.sprite.Sprite):
             self.kill
         
 
+#create enemy
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self,level):
+        super(Enemy,self).__init__()
+        self.one =   pygame.transform.rotate(pygame.transform.scale(pygame.image.load('assets/enemy/Ships/enemy-1.png').convert_alpha(),(35,70)),180)
+        self.two =   pygame.transform.rotate(pygame.transform.scale(pygame.image.load('assets/enemy/Ships/enemy-2.png').convert_alpha(),(35,70)),180)
+        self.three = pygame.transform.rotate(pygame.transform.scale(pygame.image.load('assets/enemy/Ships/enemy-3.png').convert_alpha(),(35,70)),180)
+        
+        if level == "LOW":
+            self.image = self.one
+        if level == "MEDIUM":
+            self.temp = random.choices([self.one,self.two])
+            self.image = self.temp[0]
+
+        if level == "HIGH":
+            self.temp = random.choices([self.one,self.two,self.three])
+            self.image = self.temp[0]
+
+        self.rect = self.image.get_rect()
+        self.rect.center = (
+            random.randint(15,830),
+            random.randint(0,0)
+        )
+        self.speed = random.randint(1,2)
+
+        # print(self.enemy)
+        
+    def update(self):
+        self.rect.move_ip(0,self.speed)
+        if self.rect.y > height:
+            self.kill
+
 #create dashboard object
 db = Dashboard()
 #planet
@@ -486,6 +519,11 @@ bullet_group = pygame.sprite.Group()
 
 #player
 player = Player(400,300,db.selectedship)
+
+#enemy
+enemy_group = pygame.sprite.Group()
+ADDENEMY = pygame.USEREVENT + 1
+pygame.time.set_timer(ADDENEMY,2000)
 
 #init.. True for loop
 run = True
@@ -663,6 +701,10 @@ while run:
 
         player.HealthBar()
 
+        #update and draw enemy
+        enemy_group.update()
+        enemy_group.draw(screen)
+
         if back.draw(screen):
             startgame = False
             setting_sec = False
@@ -702,7 +744,10 @@ while run:
                 move_right = False
             if event.key == K_a:
                 shoot = False
-            
+        if startgame:
+            if event.type == ADDENEMY:
+                enemy = Enemy(db.selectedlevel)
+                enemy_group.add(enemy)
     
     #update and flip our display
     pygame.display.update()
