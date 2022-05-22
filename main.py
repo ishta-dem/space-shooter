@@ -100,6 +100,8 @@ bg = Background(0,0,star_texture)
 #--------------dashboard------------------
 #this used to render image title and box
 #all operations are perform in loops event
+#game variable
+playerscore = 0
 class Dashboard:
     def __init__(self):
         self.selectedlevel = 'LOW'
@@ -176,7 +178,7 @@ class Dashboard:
         title = font.render('LEVEL : '+str(self.selectedlevel),True,WHITE)
         screen.blit(title, (width - title.get_width() - 5,10))
 
-        score = font.render('SCORE : '+str(1000),True,WHITE)
+        score = font.render('SCORE : '+str(player.score),True,WHITE)
         screen.blit(score,(width - title.get_width() - score.get_width() - 20 ,10))
 
         ship = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(self.selectedship),(20,40)), 90)
@@ -381,6 +383,7 @@ class Dashboard:
         font = pygame.font.SysFont('arial',20,2)
         title = font.render('RESTART GAME',True,WHITE)
         #display background and title
+        screen.blit(about_bg,(0,0))
         screen.blit(self.surf,(self.titlex,self.titley))
         screen.blit(title,((self.titlex + (self.titlewidth/2) - (title.get_width()/2)),(self.titley + (self.titleheight / 2) - (title.get_height() / 2))))
 
@@ -416,12 +419,13 @@ class Player(pygame.sprite.Sprite):
         super(Player,self).__init__()
         self.cool_down = 0
         self.img = img
-        self.health = 100
         # self.last_time = pygame.time.get_ticks()
         self.reset(x,y)
 
         # print(self.player)
     def reset(self,x,y):
+        self.health = 100
+        self.score = 0
         self.x = x 
         self.y = y
         self.ship = pygame.image.load(self.img).convert_alpha()
@@ -492,7 +496,8 @@ class Bullet(pygame.sprite.Sprite):
                 self.kill()
             for enemy in enemy_group:
                 if pygame.sprite.spritecollide(enemy, bullet_group,False):
-                    enemy.health -= 20
+                    enemy.health -= 10
+                    player.score += 5
                     self.kill()
                     # print('enemy collided')
 
@@ -501,7 +506,7 @@ class Bullet(pygame.sprite.Sprite):
             if self.rect.y > height:
                 self.kill()
             if pygame.sprite.spritecollide(player, enemy_bullet_group, False):
-                player.health -= 20
+                player.health -= 10
                 self.kill()
 
 #create enemy
@@ -759,7 +764,6 @@ while run:
             chooseship_sec = False
             restart_sec = False
             player.reset(400,300)
-            player.health = 100
 
         if exitbt.draw(screen):
             startgame = False
