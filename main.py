@@ -66,6 +66,7 @@ about_sec = False
 help_sec = False
 dashboard = True
 chooseship_sec = False
+restart_sec = False
 
 #author description
 def author():
@@ -375,6 +376,13 @@ class Dashboard:
                 shipheight = scaleimg.get_height()
             y += shipheight + 30
             x = 250
+    def RestartSec(self):
+        self.surf.fill(DARKBLUE)
+        font = pygame.font.SysFont('arial',20,2)
+        title = font.render('RESTART GAME',True,WHITE)
+        #display background and title
+        screen.blit(self.surf,(self.titlex,self.titley))
+        screen.blit(title,((self.titlex + (self.titlewidth/2) - (title.get_width()/2)),(self.titley + (self.titleheight / 2) - (title.get_height() / 2))))
 
 #planet enimation
 class Planet(pygame.sprite.Sprite):
@@ -423,25 +431,27 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         if self.cool_down == 0:
-            self.cool_down = 80
+            self.cool_down = 10
             bullet = Bullet(self.rect.centerx,self.rect.centery,bullet_img,'UP')
             bullet_group.add(bullet)
     def HealthBar(self):
-        if self.health >= 0:
-            redsurf = pygame.surface.Surface((100,10))
-            redsurf.fill(RED)
-            
-            greensurf = pygame.surface.Surface((self.health,10))
-            greensurf.fill(LIGHTGREEN)
+        
+        redsurf = pygame.surface.Surface((100,10))
+        redsurf.fill(RED)
+        
+        greensurf = pygame.surface.Surface((self.health,10))
+        greensurf.fill(LIGHTGREEN)
 
-            screen.blit(redsurf,(50,10))
-            screen.blit(greensurf,(50,10))
+        screen.blit(redsurf,(50,10))
+        screen.blit(greensurf,(50,10))
         
     def update(self):
         
         if self.cool_down > 0:
             self.cool_down -= 1
 
+        if self.health < 0:
+            self.health = 0
         #player move
         if move_up:
             self.rect.move_ip(0,-1)
@@ -594,6 +604,7 @@ while run:
             about_sec = False 
             dashboard = False
             chooseship_sec = False
+            restart_sec = False
 
         #setting button
         setting.msg(screen,'Choose a best settings',12)
@@ -605,6 +616,7 @@ while run:
             about_sec = False 
             dashboard = False
             chooseship_sec = False
+            restart_sec = False
 
         #score button
         score.msg(screen,'Show Score',12)
@@ -616,6 +628,7 @@ while run:
             about_sec = False 
             dashboard = False
             chooseship_sec = False
+            restart_sec = False
 
         #about button
         about.msg(screen,'Know more',12)
@@ -627,6 +640,7 @@ while run:
             about_sec = True 
             dashboard = False
             chooseship_sec = False
+            restart_sec = False
 
         #help button
         Help.msg(screen,'Click to Get Tips',12)
@@ -638,6 +652,7 @@ while run:
             about_sec = False 
             dashboard = False
             chooseship_sec = False
+            restart_sec = False
         
         #chooseship button
         chooseship.msg(screen,'select your space-ship',12)
@@ -649,6 +664,7 @@ while run:
             about_sec = False 
             dashboard = False
             chooseship_sec = True
+            restart_sec = False
 
         #exit button
         if Exit.draw(screen):
@@ -665,6 +681,7 @@ while run:
             about_sec = False
             dashboard = True
             chooseship_sec = False
+            restart_sec = False
 
     #open score section
     elif score_sec:
@@ -678,6 +695,7 @@ while run:
             about_sec = False
             dashboard = True
             chooseship_sec = False
+            restart_sec = False
 
     #open about section
     elif about_sec:
@@ -691,6 +709,7 @@ while run:
             about_sec = False
             dashboard = True
             chooseship_sec = False
+            restart_sec = False
         
     #open help section
     elif help_sec:
@@ -708,6 +727,7 @@ while run:
             about_sec = False
             dashboard = True
             chooseship_sec = False
+            restart_sec = False
     
     #open chooseship section
     elif chooseship_sec:
@@ -721,7 +741,36 @@ while run:
             about_sec = False
             dashboard = True
             chooseship_sec = False
-        
+            restart_sec = False
+    
+    #open restart section
+    elif restart_sec:
+        screen.fill(BLACK)
+        db.RestartSec()
+        restartbt = Button(width/2 - 60,130,120,25,'Restart',18,DARKBLUE,LIGHTGREEN,hover=False)
+        exitbt = Button(width/2 - 60,180,120,25,'Exit',18,DARKBLUE,LIGHTGREEN,hover=False)
+        if restartbt.draw(screen):
+            startgame = True
+            setting_sec = False
+            score_sec = False
+            help_sec = False
+            about_sec = False
+            dashboard = False
+            chooseship_sec = False
+            restart_sec = False
+            player.reset(400,300)
+            player.health = 100
+
+        if exitbt.draw(screen):
+            startgame = False
+            setting_sec = False
+            score_sec = False
+            help_sec = False
+            about_sec = False
+            dashboard = True
+            chooseship_sec = False
+            restart_sec = False
+    
     #it means game is started
     else:
         screen.fill(WHITE)
@@ -743,6 +792,20 @@ while run:
         #update and draw enemy
         enemy_group.update()
         enemy_group.draw(screen)
+
+        if player.health == 0:
+            player.kill()
+            enemy_group.empty()
+            enemy_bullet_group.empty()
+            bullet_group.empty()
+            startgame = False
+            setting_sec = False
+            score_sec = False
+            help_sec = False
+            about_sec = False
+            dashboard = False
+            chooseship_sec = False
+            restart_sec = True
 
         if back.draw(screen):
             startgame = False
