@@ -486,6 +486,8 @@ class Enemy(pygame.sprite.Sprite):
         self.two =   pygame.transform.rotate(pygame.transform.scale(pygame.image.load('assets/enemy/Ships/enemy-2.png').convert_alpha(),(35,70)),180)
         self.three = pygame.transform.rotate(pygame.transform.scale(pygame.image.load('assets/enemy/Ships/enemy-3.png').convert_alpha(),(35,70)),180)
         
+        self.health = 100
+
         if level == "LOW":
             self.image = self.one
         if level == "MEDIUM":
@@ -504,11 +506,27 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = random.randint(1,2)
 
         # print(self.enemy)
-        
+
     def update(self):
+
+        self.health -= 1
+        if self.health < 0:
+            self.kill()
+
         self.rect.move_ip(0,self.speed)
         if self.rect.y > height:
-            self.kill
+            self.kill()
+        #draw health bar
+
+        if self.health >= 0:
+            redrect = pygame.surface.Surface((35,6))
+            redrect.fill(RED)
+            
+            greenrect = pygame.surface.Surface((self.health * 0.35,6))
+            greenrect.fill(LIGHTGREEN)
+
+            screen.blit(redrect,(self.rect.x,self.rect.y - redrect.get_height()))
+            screen.blit(greenrect,(self.rect.x,self.rect.y - greenrect.get_height()))
 
 #create dashboard object
 db = Dashboard()
@@ -715,6 +733,7 @@ while run:
             chooseship_sec = False
             player.reset(400,300)
             bullet_group.empty()
+            enemy_group.empty()
 
     #keyboard event loop start here
     for event in pygame.event.get(): 
