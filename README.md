@@ -11,3 +11,14 @@ This is a space shooter game which is developed in python using the pygame libra
     exit    - To exit the game
 
     You can use slider to show the score
+    
+# Controls
+    KeyBorad Key
+    
+    uparrow     - Move To UP
+    downarrow   - Move To DOWN
+    leftarrow   - Move To LEFT
+    rightarrow  - Move To RIGHT
+    
+    A - To shoot the enemy
+    ESC - To exit the game
