@@ -46,6 +46,7 @@ help_bg = pygame.transform.scale((pygame.image.load('assets/background/score.jpg
 star_texture = pygame.transform.scale((pygame.image.load('assets/gamebg/stars_texture.png').convert_alpha()),(width,height))
 galaxy = pygame.transform.scale((pygame.image.load('assets/gamebg/galaxy.png').convert_alpha()),(width,height))
 bullet_img = pygame.image.load('assets/player/Laser/bullet.gif').convert_alpha()
+enemy_bullet_img = pygame.image.load('assets/enemy/Laser/bullet.png').convert_alpha()
 
 #define a buttons
 start = Button(50,50,120,25,'START',16,BLACK,RED,WHITE)
@@ -91,7 +92,7 @@ class Background:
 
         if self.rect.y > self.bg.get_height():
             self.rect.y = 0
-        self.rect.move_ip(0,1)
+        self.rect.move_ip(0,2)
         
 bg = Background(0,0,star_texture)
 
@@ -422,8 +423,8 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         if self.cool_down == 0:
-            self.cool_down = 40
-            bullet = Bullet(self.rect.centerx,self.rect.centery)
+            self.cool_down = 80
+            bullet = Bullet(self.rect.centerx,self.rect.centery,bullet_img,'UP')
             bullet_group.add(bullet)
     def HealthBar(self):
         redsurf = pygame.surface.Surface((100,10))
@@ -464,19 +465,25 @@ class Player(pygame.sprite.Sprite):
 
 #bullet class
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self,x,y,image,direction):
         super(Bullet,self).__init__()
         self.x = x
         self.y = y
-        self.image = bullet_img
+        self.image = image
+        self.direction = direction
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
     def update(self):
-        self.rect.y -= 2
 
-        if self.rect.y < 0:
-            self.kill
-        
+        if self.direction == 'UP':
+            self.rect.y -= 2
+            if self.rect.y < 0:
+                self.kill()
+
+        if self.direction == 'DOWN':
+            self.rect.y += 3
+            if self.rect.y > height:
+                self.kill()
 
 #create enemy
 class Enemy(pygame.sprite.Sprite):
@@ -487,7 +494,7 @@ class Enemy(pygame.sprite.Sprite):
         self.three = pygame.transform.rotate(pygame.transform.scale(pygame.image.load('assets/enemy/Ships/enemy-3.png').convert_alpha(),(35,70)),180)
         
         self.health = 100
-
+        self.cool_down = 0
         if level == "LOW":
             self.image = self.one
         if level == "MEDIUM":
@@ -505,13 +512,12 @@ class Enemy(pygame.sprite.Sprite):
         )
         self.speed = random.randint(1,2)
 
-        # print(self.enemy)
-
     def update(self):
-
-        self.health -= 1
-        if self.health < 0:
-            self.kill()
+        # self.health -= 1
+        # if self.health < 0:
+        #     self.kill()
+        if self.cool_down > 0:
+            self.cool_down -= 1
 
         self.rect.move_ip(0,self.speed)
         if self.rect.y > height:
@@ -528,15 +534,18 @@ class Enemy(pygame.sprite.Sprite):
             screen.blit(redrect,(self.rect.x,self.rect.y - redrect.get_height()))
             screen.blit(greenrect,(self.rect.x,self.rect.y - greenrect.get_height()))
 
+            if self.cool_down == 0:
+                self.cool_down = 120
+                bullet = Bullet(self.rect.centerx,self.rect.centery,enemy_bullet_img,'DOWN')
+                enemy_bullet_group.add(bullet)
+
 #create dashboard object
 db = Dashboard()
 #planet
 planet = Planet()
 planet_group = pygame.sprite.Group(planet)
 bullet_group = pygame.sprite.Group()
-
-#player
-player = Player(400,300,db.selectedship)
+enemy_bullet_group = pygame.sprite.Group()
 
 #enemy
 enemy_group = pygame.sprite.Group()
@@ -712,6 +721,9 @@ while run:
         #draw bullets
         bullet_group.update()
         bullet_group.draw(screen)
+        #enemy bullet groups update and draw
+        enemy_bullet_group.update()
+        enemy_bullet_group.draw(screen)
         
         player.update()
         if shoot:
@@ -733,6 +745,7 @@ while run:
             chooseship_sec = False
             player.reset(400,300)
             bullet_group.empty()
+            enemy_bullet_group.empty()
             enemy_group.empty()
 
     #keyboard event loop start here
