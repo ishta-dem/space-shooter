@@ -20,5 +20,5 @@ This is a space shooter game which is developed in python using the pygame libra
     leftarrow   - Move To LEFT
     rightarrow  - Move To RIGHT
     
-    A - To shoot the enemy
+    A   - To shoot the enemy
     ESC - To exit the game
