@@ -1,6 +1,7 @@
 #Game : Space Shooter
 #Author : Ravi Panchal
 
+import plyer
 import pygame
 from pygame.locals import *
 from pygame import *
@@ -405,6 +406,7 @@ class Player(pygame.sprite.Sprite):
         super(Player,self).__init__()
         self.cool_down = 0
         self.img = img
+        self.health = 100
         # self.last_time = pygame.time.get_ticks()
         self.reset(x,y)
 
@@ -422,8 +424,18 @@ class Player(pygame.sprite.Sprite):
             self.cool_down = 40
             bullet = Bullet(self.rect.centerx,self.rect.centery)
             bullet_group.add(bullet)
+    def HealthBar(self):
+        redsurf = pygame.surface.Surface((100,10))
+        redsurf.fill(RED)
+        
+        greensurf = pygame.surface.Surface((self.health,10))
+        greensurf.fill(LIGHTGREEN)
 
+        screen.blit(redsurf,(50,10))
+        screen.blit(greensurf,(50,10))
+        
     def update(self):
+
         if self.cool_down > 0:
             self.cool_down -= 1
 
@@ -648,6 +660,8 @@ while run:
         player.update()
         if shoot:
             player.shoot()
+
+        player.HealthBar()
 
         if back.draw(screen):
             startgame = False
