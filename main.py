@@ -48,6 +48,7 @@ star_texture = pygame.transform.scale((pygame.image.load('assets/gamebg/stars_te
 galaxy = pygame.transform.scale((pygame.image.load('assets/gamebg/galaxy.png').convert_alpha()),(width,height))
 bullet_img = pygame.image.load('assets/player/Laser/bullet.gif').convert_alpha()
 enemy_bullet_img = pygame.image.load('assets/enemy/Laser/bullet.png').convert_alpha()
+firstaid_img = pygame.transform.scale(pygame.image.load('assets/gamebg/first-aid.png').convert_alpha(),(32,32))
 
 #define a buttons
 start = Button(50,50,120,25,'START',16,BLACK,RED,WHITE)
@@ -496,6 +497,10 @@ class Player(pygame.sprite.Sprite):
 
         if self.health < 0:
             self.health = 0
+
+        if self.health > 100:
+            self.health = 100
+
         #player move
         if move_up:
             self.rect.move_ip(0,-1)
@@ -607,6 +612,24 @@ class Enemy(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.centerx,self.rect.centery,enemy_bullet_img,'DOWN')
                 enemy_bullet_group.add(bullet)
 
+class FirstAid(pygame.sprite.Sprite):
+    def __init__(self):
+        super(FirstAid,self).__init__()
+        self.image = firstaid_img
+        self.rect = self.image.get_rect()
+        self.rect.center = (
+            random.randint(200,700),
+            random.randint(0,0)
+        )
+    def update(self):
+        self.rect.move_ip(0,1)
+        if self.rect.y > height:
+            self.kill()
+
+        if pygame.sprite.spritecollide(player,firstaid_group,False):
+            player.health += 20
+            self.kill()
+
 #save player score
 def save_score(score,level):
     val = {
@@ -619,9 +642,12 @@ def save_score(score,level):
 
 #create dashboard object
 db = Dashboard()
+
 #planet
 planet = Planet()
 planet_group = pygame.sprite.Group(planet)
+
+#bullet
 bullet_group = pygame.sprite.Group()
 enemy_bullet_group = pygame.sprite.Group()
 
@@ -629,6 +655,11 @@ enemy_bullet_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY,2000)
+
+#first aid kit
+firstaid_group = pygame.sprite.Group()
+ADDKIT = pygame.USEREVENT + 2
+pygame.time.set_timer(ADDKIT,5000)
 
 #init.. True for loop
 run = True
@@ -850,6 +881,10 @@ while run:
         #update and draw enemy
         enemy_group.update()
         enemy_group.draw(screen)
+        
+        # #update and draw first aid
+        firstaid_group.update()
+        firstaid_group.draw(screen)
 
         if player.health == 0:
             player.kill()
@@ -911,6 +946,9 @@ while run:
             if event.type == ADDENEMY:
                 enemy = Enemy(db.selectedlevel)
                 enemy_group.add(enemy)
+            if event.type == ADDKIT:
+                firstaid = FirstAid()
+                firstaid_group.add(firstaid)
     
     #update and flip our display
     pygame.display.update()
