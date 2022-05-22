@@ -427,17 +427,18 @@ class Player(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx,self.rect.centery,bullet_img,'UP')
             bullet_group.add(bullet)
     def HealthBar(self):
-        redsurf = pygame.surface.Surface((100,10))
-        redsurf.fill(RED)
-        
-        greensurf = pygame.surface.Surface((self.health,10))
-        greensurf.fill(LIGHTGREEN)
+        if self.health >= 0:
+            redsurf = pygame.surface.Surface((100,10))
+            redsurf.fill(RED)
+            
+            greensurf = pygame.surface.Surface((self.health,10))
+            greensurf.fill(LIGHTGREEN)
 
-        screen.blit(redsurf,(50,10))
-        screen.blit(greensurf,(50,10))
+            screen.blit(redsurf,(50,10))
+            screen.blit(greensurf,(50,10))
         
     def update(self):
-
+        
         if self.cool_down > 0:
             self.cool_down -= 1
 
@@ -479,10 +480,18 @@ class Bullet(pygame.sprite.Sprite):
             self.rect.y -= 2
             if self.rect.y < 0:
                 self.kill()
+            for enemy in enemy_group:
+                if pygame.sprite.spritecollide(enemy, bullet_group,False):
+                    enemy.health -= 20
+                    self.kill()
+                    # print('enemy collided')
 
         if self.direction == 'DOWN':
             self.rect.y += 3
             if self.rect.y > height:
+                self.kill()
+            if pygame.sprite.spritecollide(player, enemy_bullet_group, False):
+                player.health -= 20
                 self.kill()
 
 #create enemy
@@ -513,13 +522,13 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = random.randint(1,2)
 
     def update(self):
-        # self.health -= 1
-        # if self.health < 0:
-        #     self.kill()
+        if self.health < 0:
+            self.kill()
+
         if self.cool_down > 0:
             self.cool_down -= 1
 
-        self.rect.move_ip(0,self.speed)
+        self.rect.move_ip(0,1)
         if self.rect.y > height:
             self.kill()
         #draw health bar
