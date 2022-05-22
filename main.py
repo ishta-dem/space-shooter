@@ -212,9 +212,16 @@ class Dashboard:
 
         score = font.render('SCORE : '+str(player.score),True,WHITE)
         screen.blit(score,(width - title.get_width() - score.get_width() - 20 ,10))
+        
+        scorelist = []
+        with open('score.csv','r') as scoredata:
+            data = csv.reader(scoredata)
+            for scr in data:
+                scorelist.append(int(scr[1]))
+        # print(max(scorelist))
 
         #hight score
-        highscore = font.render('HIGHSCORE : '+str(100),True,WHITE)
+        highscore = font.render('HIGHSCORE : '+str(max(scorelist)),True,WHITE)
         screen.blit(highscore,(width - title.get_width() - highscore.get_width() - score.get_width() - 30 ,10))
 
         ship = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(self.selectedship),(20,40)), 90)
@@ -805,10 +812,6 @@ while run:
     elif help_sec:
         screen.fill(BLACK)
         db.HelpSec()
-        # if btup.draw(screen):
-        #     db.helpmsgy += 10
-        # if btdown.draw(screen):
-        #     db.helpmsgy -= 10
         if back.draw(screen):
             startgame = False
             setting_sec = False
