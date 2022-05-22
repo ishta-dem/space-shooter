@@ -8,6 +8,8 @@ from pygame.locals import *
 from pygame import *
 import time
 import os
+
+from pygments import highlight
 from button import Button
 
 #initialize pygame
@@ -181,8 +183,12 @@ class Dashboard:
         score = font.render('SCORE : '+str(player.score),True,WHITE)
         screen.blit(score,(width - title.get_width() - score.get_width() - 20 ,10))
 
+        #hight score
+        highscore = font.render('HIGHSCORE : '+str(100),True,WHITE)
+        screen.blit(highscore,(width - title.get_width() - highscore.get_width() - score.get_width() - 30 ,10))
+
         ship = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(self.selectedship),(20,40)), 90)
-        screen.blit(ship, (width - title.get_width() - ship.get_width() - score.get_width() - 30 ,10))
+        screen.blit(ship, (width - title.get_width() - ship.get_width() - score.get_width() - 40 - highscore.get_width(),10))
 
     def SettingSec(self):
         self.surf.fill(DARKBLUE)
@@ -429,13 +435,13 @@ class Player(pygame.sprite.Sprite):
         self.x = x 
         self.y = y
         self.ship = pygame.image.load(self.img).convert_alpha()
-        self.player = pygame.transform.scale(self.ship,(60,120))
+        self.player = pygame.transform.scale(self.ship,(50,100))
         self.rect = self.player.get_rect()
         self.rect.topleft = (self.x,self.y)
 
     def shoot(self):
         if self.cool_down == 0:
-            self.cool_down = 10
+            self.cool_down = 20
             bullet = Bullet(self.rect.centerx,self.rect.centery,bullet_img,'UP')
             bullet_group.add(bullet)
     def HealthBar(self):
@@ -446,8 +452,13 @@ class Player(pygame.sprite.Sprite):
         greensurf = pygame.surface.Surface((self.health,10))
         greensurf.fill(LIGHTGREEN)
 
-        screen.blit(redsurf,(50,10))
-        screen.blit(greensurf,(50,10))
+        font = pygame.font.SysFont('arial',14,1)
+        showhealth = font.render(str(self.health),True,WHITE)
+
+        screen.blit(redsurf,(50,15))
+        screen.blit(greensurf,(50,15))
+        screen.blit(showhealth,(50 + (greensurf.get_width()/2) - (showhealth.get_width()/2),15 + (greensurf.get_height()/2) - (showhealth.get_height()/2)))
+        
         
     def update(self):
         
@@ -496,7 +507,7 @@ class Bullet(pygame.sprite.Sprite):
                 self.kill()
             for enemy in enemy_group:
                 if pygame.sprite.spritecollide(enemy, bullet_group,False):
-                    enemy.health -= 10
+                    enemy.health -= 15
                     player.score += 5
                     self.kill()
                     # print('enemy collided')
@@ -519,15 +530,19 @@ class Enemy(pygame.sprite.Sprite):
         
         self.health = 100
         self.cool_down = 0
+        self.setcooldown = 0
         if level == "LOW":
             self.image = self.one
+            self.setcooldown = 120
         if level == "MEDIUM":
             self.temp = random.choices([self.one,self.two])
             self.image = self.temp[0]
+            self.setcooldown = 80
 
         if level == "HIGH":
             self.temp = random.choices([self.one,self.two,self.three])
             self.image = self.temp[0]
+            self.setcooldown = 55
 
         self.rect = self.image.get_rect()
         self.rect.center = (
@@ -559,7 +574,7 @@ class Enemy(pygame.sprite.Sprite):
             screen.blit(greenrect,(self.rect.x,self.rect.y - greenrect.get_height()))
 
             if self.cool_down == 0:
-                self.cool_down = 120
+                self.cool_down = self.setcooldown
                 bullet = Bullet(self.rect.centerx,self.rect.centery,enemy_bullet_img,'DOWN')
                 enemy_bullet_group.add(bullet)
 
