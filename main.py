@@ -1,15 +1,14 @@
 #Game : Space Shooter
 #Author : Ravi Panchal
 
+import csv
 import random
-import plyer
+import pandas as pd
 import pygame
 from pygame.locals import *
 from pygame import *
 import time
 import os
-
-from pygments import highlight
 from button import Button
 
 #initialize pygame
@@ -174,6 +173,36 @@ class Dashboard:
         font = pygame.font.SysFont('arial',18,2)
         title = font.render('  Score Board  ',True,WHITE)
         screen.blit(title,(self.sliderboxx + (box.get_width()/2) - (title.get_width()/2),self.sliderboxy))
+
+        #fetch score data
+        headerfont = pygame.font.SysFont('arial',15,2)
+        header = headerfont.render('INDEX__________LEVEL__________SCORE',True,WHITE)
+        screen.blit(header,(self.sliderboxx + (box.get_width()/2) - (header.get_width()/2),self.sliderboxy+ header.get_height() + 5))
+
+        datafont = pygame.font.SysFont('arial',12,2)
+        posy = self.sliderboxy + header.get_height() + 30
+        scorelist = []
+        with open('score.csv','r') as scoredata:
+            data = csv.reader(scoredata)
+            for score in data:
+                scorelist.append(score)
+            # print(datalist)
+        count = 1
+        i = len(scorelist)-1
+        while i >= 0:
+            if count <= 10:
+                ct = datafont.render(str(count),True,WHITE)
+                screen.blit(ct,(self.sliderboxx +50,posy))
+                
+                lvl = datafont.render(scorelist[i][0],True,WHITE)
+                screen.blit(lvl,(self.sliderboxx + (box.get_width()/2) - (lvl.get_width()/2),posy))
+                
+                scr = datafont.render(scorelist[i][1],True,WHITE)
+                screen.blit(scr,(self.sliderboxx + (box.get_width()) - (scr.get_width()) - 50,posy))
+
+            posy += scr.get_height() + 7
+            count += 1
+            i -= 1
 
     def StartGame(self):
         font = pygame.font.SysFont('arial',12,2)
@@ -578,6 +607,16 @@ class Enemy(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.centerx,self.rect.centery,enemy_bullet_img,'DOWN')
                 enemy_bullet_group.add(bullet)
 
+#save player score
+def save_score(score,level):
+    val = {
+        'Level':[level],
+        'Score':[score]
+    }
+    df = pd.DataFrame(val)
+    df.to_csv('score.csv',mode='a',header=False,index=False)
+    # print(df)
+
 #create dashboard object
 db = Dashboard()
 #planet
@@ -817,6 +856,7 @@ while run:
             enemy_group.empty()
             enemy_bullet_group.empty()
             bullet_group.empty()
+            save_score(player.score,db.selectedlevel)
             startgame = False
             setting_sec = False
             score_sec = False
