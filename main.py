@@ -532,7 +532,26 @@ class Planet(pygame.sprite.Sprite):
         time.sleep(0.04)
         self.image = self.flames[self.index]
 
+#flame animation for the player
+class Flame(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Flame,self).__init__()
+        self.images = []
+        for i in range(10):
+            self.images.append(pygame.image.load('assets/player/flame/0 ('+str(i+1)+').png'))
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        # self.rect.topleft = (x,y)
 
+    def update(self,x,y):
+        self.rect.x = x + 25 - self.image.get_width()/2
+        self.rect.y = y + 90
+        self.index += 1
+        if self.index >= len(self.images):
+            self.index = 0
+        self.image = self.images[self.index]
+        
 #-------when game will started----------
 #player setups here
 move_left = False
@@ -581,7 +600,7 @@ class Player(pygame.sprite.Sprite):
         
         
     def update(self):
-        
+
         if self.cool_down > 0:
             self.cool_down -= 1
 
@@ -736,6 +755,9 @@ db = Dashboard()
 #planet
 planet = Planet()
 planet_group = pygame.sprite.Group(planet)
+#flame
+flame = Flame()
+flame_group = pygame.sprite.Group(flame)
 
 #bullet
 bullet_group = pygame.sprite.Group()
@@ -958,6 +980,10 @@ while run:
         enemy_bullet_group.update()
         enemy_bullet_group.draw(screen)
         
+        #update and draw flame
+        flame_group.update(player.rect.x,player.rect.y)
+        flame_group.draw(screen)
+
         player.update()
         if shoot:
             player.shoot()
