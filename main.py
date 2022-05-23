@@ -119,6 +119,8 @@ class Dashboard:
         self.helpmsgx = 0
         self.helpmsgy = 0
         self.helpmsgscrolly = 0
+        self.scoresecy = 0
+        self.scoresecscrolly = 0
    
     #this function display level and selected spaceship on dashboard
     def PlayerShipAndLevel(self):
@@ -283,6 +285,87 @@ class Dashboard:
         screen.blit(score_bg,(0,0))
         screen.blit(self.surf,(self.titlex,self.titley))
         screen.blit(title,((self.titlex + (self.titlewidth/2) - (title.get_width()/2)),(self.titley + (self.titleheight / 2) - (title.get_height() / 2))))
+
+        #show score in this section
+        box = pygame.surface.Surface((width/2,height/2 + 60))
+        box.fill(BLACK)
+        pygame.Surface.set_alpha(box,150)
+        boxrect = box.get_rect()
+        boxrect.topleft = (width/2 - box.get_width()/2,height/2 - box.get_height()/2)
+        screen.blit(box,boxrect)
+
+        datafont = pygame.font.SysFont('arail',18,2)
+        score_y = self.scoresecy + boxrect.y + 5
+        score_total_height = 0
+        low_high_score = []
+        medium_high_score = []
+        high_high_score = []
+        count = 1
+        with open('score.csv','r') as scorelist:
+            data = csv.reader(scorelist)
+            for score in data:
+
+                if score[0]=='LOW':
+                    low_high_score.append(int(score[1]))
+                if score[0]=='MEDIUM':
+                    medium_high_score.append(int(score[1]))
+                if score[0]=='HIGH':
+                    high_high_score.append(int(score[1]))
+
+                ct = datafont.render(str(count)+' ) ',True,WHITE)
+                lvl = datafont.render(score[0],True,WHITE)
+                scr = datafont.render(score[1],True,WHITE)
+                if score_y > (boxrect.y + box.get_height() - scr.get_height()) or score_y < (boxrect.y): 
+                    pass
+                else:
+                    screen.blit(ct,(boxrect.x + 55,score_y))
+                    screen.blit(lvl,(boxrect.x + (box.get_width()/2) - (lvl.get_width()/2),score_y))
+                    screen.blit(scr,(boxrect.x + box.get_width() - scr.get_width() - 55,score_y))
+                
+                score_y += scr.get_height() + 10
+                score_total_height += scr.get_height() + 5
+                count += 1
+                # print(score)
+        btnup = Button(boxrect.x + box.get_width() - 20,boxrect.y,20,20,'/\\',14,DARKGREEN,RED,hover=False)
+        btndown = Button(boxrect.x + box.get_width() - 20,boxrect.y + box.get_height() - 20,20,20,'\\/',14,DARKGREEN,RED,hover=False)
+
+        #show scroller thumb and scorll it
+        scroll = pygame.surface.Surface((5,20))
+        scrollrect = scroll.get_rect()
+        scrollrect.topleft = ((boxrect.x + box.get_width()) - 10 - (scroll.get_width()/2),boxrect.y + 20 + self.scoresecscrolly)
+        scroll.fill(WHITE)
+        screen.blit(scroll,scrollrect)
+
+        if btnup.draw(screen):
+            if scrollrect.y < (boxrect.y + 20):
+                pass
+            else:
+                self.scoresecy += 2
+                self.scoresecscrolly -= ((box.get_height() - 40)*2)/score_total_height
+
+        if btndown.draw(screen):
+            if scrollrect.y > (boxrect.y + box.get_height() - 40):
+                pass
+            else:
+                self.scoresecy -= 2
+                self.scoresecscrolly += ((box.get_height() - 40)*2)/score_total_height
+        
+        #showing high score in this section
+        highscoretitlefont = pygame.font.SysFont('arial',18,2)
+        highscoretitle = highscoretitlefont.render('High Score',True,WHITE)
+
+        lowscore =    highscoretitlefont.render('Low         :    '+str(max(low_high_score)),True,WHITE)
+        mediumscore = highscoretitlefont.render('Medium   :     '+str(max(medium_high_score)),True,WHITE)
+        highscore =   highscoretitlefont.render('High        :    '+str(max(high_high_score)),True,WHITE)
+
+
+        screen.blit(highscoretitle,(((width/4)/2)-highscoretitle.get_width()/2,boxrect.y))
+
+        screen.blit(lowscore,(45,boxrect.y + highscoretitle.get_height() + 15))
+        screen.blit(mediumscore,(45,boxrect.y + highscoretitle.get_height() + 30 + lowscore.get_height()))
+        screen.blit(highscore,(45,boxrect.y + highscoretitle.get_height() + 45  + lowscore.get_height() + mediumscore.get_height()))
+
+
     
     def AboutSec(self):
         self.surf.fill(DARKBLUE)
