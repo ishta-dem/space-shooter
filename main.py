@@ -739,6 +739,25 @@ class FirstAid(pygame.sprite.Sprite):
             player.health += 20
             self.kill()
 
+#showing obstacle shower
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Obstacle,self).__init__()
+        self.coolleft = 40
+        self.coolright = 0
+        self.image = pygame.surface.Surface((2,random.randint(5,95)))
+        self.image.fill(WHITE)
+        pygame.Surface.set_alpha(self.image,45)
+        self.rect = self.image.get_rect()
+        self.rect.center = (
+            random.randint(20,850),
+            random.randint(0,0)
+        )
+    def update(self):
+        self.rect.move_ip(0,2)
+        if self.rect.y > height:
+            self.kill()
+
 #save player score
 def save_score(score,level):
     val = {
@@ -772,6 +791,12 @@ pygame.time.set_timer(ADDENEMY,2000)
 firstaid_group = pygame.sprite.Group()
 ADDKIT = pygame.USEREVENT + 2
 pygame.time.set_timer(ADDKIT,5000)
+
+#obstacles
+obs_group = pygame.sprite.Group()
+ADDOBS = pygame.USEREVENT + 3
+pygame.time.set_timer(ADDOBS,50)
+
 
 #init.. True for loop
 run = True
@@ -973,6 +998,9 @@ while run:
         screen.fill(WHITE)
         bg.draw_bg()
         db.StartGame()
+        #draw obstacle
+        obs_group.update()
+        obs_group.draw(screen)
         #draw bullets
         bullet_group.update()
         bullet_group.draw(screen)
@@ -1061,6 +1089,9 @@ while run:
             if event.type == ADDKIT:
                 firstaid = FirstAid()
                 firstaid_group.add(firstaid)
+            if event.type == ADDOBS:
+                obs = Obstacle()
+                obs_group.add(obs)
     
     #update and flip our display
     pygame.display.update()
