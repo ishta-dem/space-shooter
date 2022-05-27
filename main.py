@@ -49,6 +49,7 @@ galaxy = pygame.transform.scale((pygame.image.load('assets/gamebg/galaxy.png').c
 bullet_img = pygame.image.load('assets/player/Laser/bullet.gif').convert_alpha()
 enemy_bullet_img = pygame.image.load('assets/enemy/Laser/bullet.png').convert_alpha()
 firstaid_img = pygame.transform.scale(pygame.image.load('assets/gamebg/first-aid.png').convert_alpha(),(32,32))
+ammo_img = pygame.transform.scale(pygame.image.load('assets/gamebg/ammobg.png').convert_alpha(),(22,22))
 
 #define a buttons
 start = Button(50,50,120,25,'START',16,BLACK,RED,WHITE)
@@ -570,6 +571,7 @@ class Player(pygame.sprite.Sprite):
         # print(self.player)
     def reset(self,x,y):
         self.health = 100
+        self.ammo = 120
         self.score = 0
         self.x = x 
         self.y = y
@@ -581,8 +583,10 @@ class Player(pygame.sprite.Sprite):
     def shoot(self):
         if self.cool_down == 0:
             self.cool_down = 20
-            bullet = Bullet(self.rect.centerx,self.rect.centery,bullet_img,'UP')
-            bullet_group.add(bullet)
+            if self.ammo > 0:
+                bullet = Bullet(self.rect.centerx,self.rect.centery,bullet_img,'UP')
+                bullet_group.add(bullet)
+                self.ammo -= 1
     def HealthBar(self):
         
         redsurf = pygame.surface.Surface((100,10))
@@ -598,7 +602,17 @@ class Player(pygame.sprite.Sprite):
         screen.blit(greensurf,(50,15))
         screen.blit(showhealth,(50 + (greensurf.get_width()/2) - (showhealth.get_width()/2),15 + (greensurf.get_height()/2) - (showhealth.get_height()/2)))
         
-        
+    def ShowAmmo(self):
+        #show ammo here
+        # am = pygame.surface.Surface((35,35))
+        am = ammo_img
+        # am.fill(WHITE)
+
+        font = pygame.font.SysFont('arial',15,2)
+        amcount = font.render(str(self.ammo),True,WHITE)
+        screen.blit(am,(160,10))
+        screen.blit(amcount,(160+40,10))
+
     def update(self):
 
         if self.cool_down > 0:
@@ -740,14 +754,11 @@ class FirstAid(pygame.sprite.Sprite):
             self.kill()
 
 #showing obstacle shower
-class Obstacle(pygame.sprite.Sprite):
+class AmmoBox(pygame.sprite.Sprite):
     def __init__(self):
-        super(Obstacle,self).__init__()
-        self.coolleft = 40
-        self.coolright = 0
-        self.image = pygame.surface.Surface((2,random.randint(5,95)))
-        self.image.fill(WHITE)
-        pygame.Surface.set_alpha(self.image,45)
+        super(AmmoBox,self).__init__()
+        self.image = ammo_img
+        # self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.rect.center = (
             random.randint(20,850),
@@ -756,6 +767,9 @@ class Obstacle(pygame.sprite.Sprite):
     def update(self):
         self.rect.move_ip(0,2)
         if self.rect.y > height:
+            self.kill()
+        if pygame.sprite.spritecollide(player,ammo_group,False):
+            player.ammo += 15
             self.kill()
 
 #save player score
@@ -793,9 +807,9 @@ ADDKIT = pygame.USEREVENT + 2
 pygame.time.set_timer(ADDKIT,5000)
 
 #obstacles
-obs_group = pygame.sprite.Group()
-ADDOBS = pygame.USEREVENT + 3
-pygame.time.set_timer(ADDOBS,50)
+ammo_group = pygame.sprite.Group()
+ADDAMMO = pygame.USEREVENT + 3
+pygame.time.set_timer(ADDAMMO,3500)
 
 
 #init.. True for loop
@@ -999,8 +1013,8 @@ while run:
         bg.draw_bg()
         db.StartGame()
         #draw obstacle
-        obs_group.update()
-        obs_group.draw(screen)
+        ammo_group.update()
+        ammo_group.draw(screen)
         #draw bullets
         bullet_group.update()
         bullet_group.draw(screen)
@@ -1017,6 +1031,7 @@ while run:
             player.shoot()
 
         player.HealthBar()
+        player.ShowAmmo()
 
         #update and draw enemy
         enemy_group.update()
@@ -1089,9 +1104,9 @@ while run:
             if event.type == ADDKIT:
                 firstaid = FirstAid()
                 firstaid_group.add(firstaid)
-            if event.type == ADDOBS:
-                obs = Obstacle()
-                obs_group.add(obs)
+            if event.type == ADDAMMO:
+                amm = AmmoBox()
+                ammo_group.add(amm)
     
     #update and flip our display
     pygame.display.update()
