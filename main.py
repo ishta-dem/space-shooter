@@ -377,6 +377,31 @@ class Dashboard:
         screen.blit(self.surf,(self.titlex,self.titley))
         screen.blit(title,((self.titlex + (self.titlewidth/2) - (title.get_width()/2)),(self.titley + (self.titleheight / 2) - (title.get_height() / 2))))
 
+        #showing some content
+        ctfont = pygame.font.SysFont('arial',17,2)
+        box = pygame.surface.Surface((width/2, height/2 + 50))
+        boxrect = box.get_rect(topleft=(width/2 - box.get_width()/2,height/2 - box.get_height()/2))
+        box.fill(BLACK)
+        pygame.Surface.set_alpha(box,155)
+        screen.blit(box,boxrect)
+
+        content = [
+            "       This is space shooter game which",
+            "is  develop  in  python pygame library.",
+            "where  we  can  shoot  he  enemy  with",
+            "player  bullet  and  we  can  increase",
+            "the health and ammo also",
+            "",
+            "                          - Ravi Panchal",
+        ]
+
+        line_x = boxrect.x
+        line_y = boxrect.y
+        for i in range(len(content)):
+            line = ctfont.render(content[i],True,WHITE)
+            screen.blit(line,((line_x + (box.get_width()/2) - (line.get_width()/2)),line_y + 15))
+            line_y += line.get_height() + 15
+
     def HelpSec(self):
         self.surf.fill(DARKBLUE)
         font = pygame.font.SysFont('arial',20,2)
