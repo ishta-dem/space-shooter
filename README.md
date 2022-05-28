@@ -24,5 +24,8 @@ This is a space shooter game which is developed in python using the pygame libra
     ESC - To exit the game
     
 # Credit For Assets
-    # space ship
+    space ship assets
         https://zintoki.itch.io/space-breaker
+    Background
+        freepik.com
+        pngtree.com
