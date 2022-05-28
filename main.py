@@ -420,6 +420,9 @@ class Dashboard:
         screen.blit(surf,surfrect)
         
         helpmsg = [
+            'Use <- -> to move left & right',
+            'Use UP - DOWN arrow to move up & down',
+            'Use `A` key to shoot the enemy',
             'choose low level for the first game play',
             'go to choose option to select space ship',
             'use different space ship',
@@ -596,7 +599,7 @@ class Player(pygame.sprite.Sprite):
         # print(self.player)
     def reset(self,x,y):
         self.health = 100
-        self.ammo = 120
+        self.ammo = 60
         self.score = 0
         self.x = x 
         self.y = y
@@ -834,7 +837,7 @@ pygame.time.set_timer(ADDKIT,5000)
 #obstacles
 ammo_group = pygame.sprite.Group()
 ADDAMMO = pygame.USEREVENT + 3
-pygame.time.set_timer(ADDAMMO,3500)
+pygame.time.set_timer(ADDAMMO,6000)
 
 
 #init.. True for loop
@@ -1071,6 +1074,7 @@ while run:
             enemy_group.empty()
             enemy_bullet_group.empty()
             bullet_group.empty()
+            ammo_group.empty()
             save_score(player.score,db.selectedlevel)
             startgame = False
             setting_sec = False
@@ -1093,6 +1097,7 @@ while run:
             bullet_group.empty()
             enemy_bullet_group.empty()
             enemy_group.empty()
+            ammo_group.empty()
 
     #keyboard event loop start here
     for event in pygame.event.get(): 
