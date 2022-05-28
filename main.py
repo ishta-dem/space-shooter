@@ -122,6 +122,8 @@ class Dashboard:
         self.helpmsgscrolly = 0
         self.scoresecy = 0
         self.scoresecscrolly = 0
+        self.mapsurf = None
+        self.maprect = None
    
     #this function display level and selected spaceship on dashboard
     def PlayerShipAndLevel(self):
@@ -229,6 +231,13 @@ class Dashboard:
 
         ship = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(self.selectedship),(20,40)), 90)
         screen.blit(ship, (width - title.get_width() - ship.get_width() - score.get_width() - 40 - highscore.get_width(),10))
+
+        #show mini map when game is started
+        self.mapsurf = pygame.surface.Surface((150,75))
+        self.mapsurf.fill(WHITE)
+        pygame.Surface.set_alpha(self.mapsurf,160)
+        self.maprect = self.mapsurf.get_rect(topleft=(width-(self.mapsurf.get_width() + 5),10+ highscore.get_height()))
+        screen.blit(self.mapsurf,self.maprect)
 
     def SettingSec(self):
         self.surf.fill(DARKBLUE)
@@ -732,9 +741,11 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (
             random.randint(15,830),
-            random.randint(0,0)
+            -(height/2)
         )
         self.speed = random.randint(1,2)
+        mini = MiniEnemy(self.rect.x,self.rect.y)
+        mini_group.add(mini)
 
     def update(self):
         if self.health < 0:
@@ -758,10 +769,11 @@ class Enemy(pygame.sprite.Sprite):
             screen.blit(redrect,(self.rect.x,self.rect.y - redrect.get_height()))
             screen.blit(greenrect,(self.rect.x,self.rect.y - greenrect.get_height()))
 
-            if self.cool_down == 0:
-                self.cool_down = self.setcooldown
-                bullet = Bullet(self.rect.centerx,self.rect.centery,enemy_bullet_img,'DOWN')
-                enemy_bullet_group.add(bullet)
+            if self.rect.y > 0:
+                if self.cool_down == 0:
+                    self.cool_down = self.setcooldown
+                    bullet = Bullet(self.rect.centerx,self.rect.centery,enemy_bullet_img,'DOWN')
+                    enemy_bullet_group.add(bullet)
 
 class FirstAid(pygame.sprite.Sprite):
     def __init__(self):
@@ -800,6 +812,35 @@ class AmmoBox(pygame.sprite.Sprite):
             player.ammo += 15
             self.kill()
 
+class MiniEnemy(pygame.sprite.Sprite):
+    def __init__(self,ex,ey):
+        super(MiniEnemy,self).__init__()
+        self.ex = ex
+        self.ey = ey
+        self.bx = db.maprect.x
+        self.by = db.maprect.y
+        self.map_width = db.mapsurf.get_width()
+        self.map_height = db.mapsurf.get_height()
+        self.image = pygame.surface.Surface((4,4))
+
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.center = (
+            self.bx+((self.map_width * ex)/815),
+            self.by + 5
+        )
+        self.cooldown = 0
+
+    def update(self):
+        mv = (self.map_height * 1)/450
+        if self.cooldown <= 0:
+            self.cooldown = 15
+            self.rect.y += 1
+        
+        self.cooldown -= 1
+        if self.rect.y > (self.by + self.map_height - 6):
+            self.kill()
+
 #save player score
 def save_score(score,level):
     val = {
@@ -823,6 +864,9 @@ flame_group = pygame.sprite.Group(flame)
 #bullet
 bullet_group = pygame.sprite.Group()
 enemy_bullet_group = pygame.sprite.Group()
+
+#mini enemy in mini map show it
+mini_group = pygame.sprite.Group()
 
 #enemy
 enemy_group = pygame.sprite.Group()
@@ -1053,6 +1097,10 @@ while run:
         #update and draw flame
         flame_group.update(player.rect.x,player.rect.y)
         flame_group.draw(screen)
+
+        #updata and draw min
+        mini_group.update()
+        mini_group.draw(screen)
 
         player.update()
         if shoot:
