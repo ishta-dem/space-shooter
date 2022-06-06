@@ -923,8 +923,6 @@ class MiniEnemy(pygame.sprite.Sprite):
             self.kill()
 
 # save player score
-
-
 def save_score(score, level):
     val = {
         'Level': [level],
@@ -1192,7 +1190,7 @@ while run:
                 particle[0][0]), int(particle[0][1])], int(particle[2]))
             if particle[2] <= 1:
                 particles.remove(particle)
-
+       
         # updata and draw min
         mini_group.update()
         mini_group.draw(screen)
