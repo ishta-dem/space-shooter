@@ -30,7 +30,7 @@ FPS = 120
 # DEFINE COLORS
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GREY = (104,104,104)
+GREY = (104, 104, 104)
 DARKGREEN = (25, 65, 25)
 LIGHTGREEN = (25, 250, 25)
 RED = (255, 25, 25)
@@ -649,29 +649,6 @@ class Planet(pygame.sprite.Sprite):
         time.sleep(0.04)
         self.image = self.flames[self.index]
 
-# flame animation for the player
-
-
-class Flame(pygame.sprite.Sprite):
-    def __init__(self):
-        super(Flame, self).__init__()
-        self.images = []
-        for i in range(10):
-            self.images.append(pygame.image.load(
-                'assets/player/flame/0 ('+str(i+1)+').png'))
-        self.index = 0
-        self.image = self.images[self.index]
-        self.rect = self.image.get_rect()
-        # self.rect.topleft = (x,y)
-
-    def update(self, x, y):
-        self.rect.x = x + 25 - self.image.get_width()/2
-        self.rect.y = y + 90
-        self.index += 1
-        if self.index >= len(self.images):
-            self.index = 0
-        self.image = self.images[self.index]
-
 
 # -------when game will started----------
 # player setups here
@@ -874,7 +851,6 @@ class Enemy(pygame.sprite.Sprite):
                                     self.rect.centery, enemy_bullet_img, 'DOWN')
                     enemy_bullet_group.add(bullet)
 
-
 class FirstAid(pygame.sprite.Sprite):
     def __init__(self):
         super(FirstAid, self).__init__()
@@ -965,9 +941,6 @@ db = Dashboard()
 # planet
 planet = Planet()
 planet_group = pygame.sprite.Group(planet)
-# flame
-flame = Flame()
-flame_group = pygame.sprite.Group(flame)
 
 # bullet
 bullet_group = pygame.sprite.Group()
@@ -1215,7 +1188,7 @@ while run:
             particle[0][1] += particle[1][1]
             particle[2] -= 0.1
             particle[1][1] += 0.2
-            pygame.draw.circle(screen, random.choices([WHITE,GREY])[0], [int(
+            pygame.draw.circle(screen, random.choices([WHITE, GREY])[0], [int(
                 particle[0][0]), int(particle[0][1])], int(particle[2]))
             if particle[2] <= 1:
                 particles.remove(particle)
