@@ -33,3 +33,5 @@ This is a space shooter game which is developed in python using the pygame libra
     Background
         freepik.com
         pngtree.com
+# Github
+    https://github.com/panchalravi004/space-shooter
