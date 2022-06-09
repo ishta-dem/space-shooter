@@ -22,7 +22,11 @@ This is a space shooter game which is developed in python using the pygame libra
     
     A   - To shoot the enemy
     ESC - To exit the game
-    
+# Run
+    Open CMD in your Machine
+    Move to Game Directory
+    Then Type ---> python main.py
+
 # Credit For Assets
     space ship assets
         https://zintoki.itch.io/space-breaker
