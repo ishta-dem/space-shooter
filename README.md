@@ -13,7 +13,7 @@ This is a space shooter game which is developed in python using the pygame libra
     You can use slider to show the score
     
 # Controls
-    KeyBorad Key
+    KeyBoard Key
     
     uparrow     - Move To UP
     downarrow   - Move To DOWN
